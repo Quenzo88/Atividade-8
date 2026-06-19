@@ -22,18 +22,24 @@ LOG_MODULE_REGISTER(aq_acel, LOG_LEVEL_INF);
 static const struct device *const accel = DEVICE_DT_GET(DT_NODELABEL(mma8451q));
 static const struct device *const i2c_dev = DEVICE_DT_GET(DT_NODELABEL(i2c0));
 
-// Fila de mensagens e Estrutura de dados
+// Estrutura de dados agora com X, Y e Z filtrados
 struct acel_data_item {
     uint32_t timestamp;
     int32_t raw_x;
+    int32_t raw_y;
+    int32_t raw_z;
     int32_t filtered_x;
+    int32_t filtered_y;
+    int32_t filtered_z;
 };
 K_MSGQ_DEFINE(acel_msgq, sizeof(struct acel_data_item), 30, 4);
 
-// Configuração do Filtro FIR (Média Móvel de 4 pontos)
+// Configuração do Filtro FIR (Média Móvel de 6 pontos para bater com o Python)
 volatile bool usar_filtro = false;
-#define FIR_TAPS 4
+#define FIR_TAPS 6
 int32_t fir_buffer_x[FIR_TAPS] = {0};
+int32_t fir_buffer_y[FIR_TAPS] = {0};
+int32_t fir_buffer_z[FIR_TAPS] = {0};
 
 // Botão (PTA4)
 static const struct gpio_dt_spec button = {
@@ -45,39 +51,37 @@ static struct gpio_callback button_cb_data;
 
 void buttonIsr(const struct device *dev, struct gpio_callback *cb, uint32_t pins) {
     usar_filtro = !usar_filtro;
-    printk("Filtro FIR no Eixo X: %s\n", usar_filtro ? "ATIVADO" : "DESATIVADO");
+    printk("Filtros FIR (XYZ): %s\n", usar_filtro ? "ATIVADOS" : "DESATIVADOS");
 }
 
-int32_t aplicar_filtro_fir_x(int32_t nova_amostra) {
+// Função genérica de Filtro FIR que aceita qualquer eixo
+int32_t aplicar_filtro_fir(int32_t nova_amostra, int32_t *buffer) {
     int64_t soma = 0;
     for (int i = FIR_TAPS - 1; i > 0; i--) {
-        fir_buffer_x[i] = fir_buffer_x[i - 1];
-        soma += fir_buffer_x[i];
+        buffer[i] = buffer[i - 1];
+        soma += buffer[i];
     }
-    fir_buffer_x[0] = nova_amostra;
+    buffer[0] = nova_amostra;
     soma += nova_amostra;
     return (int32_t)(soma / FIR_TAPS);
 }
 
-// === Função de Configuração I2C que você criou ===
+// === Configuração I2C ===
 void mma8451q_configurar_odr(void) {
     uint8_t buf[2];
     int ret;
 
     buf[0] = MMA8451Q_CTRL_REG1;
     buf[1] = 0x00;
-    ret = i2c_write(i2c_dev, buf, 2, MMA8451Q_I2C_ADDR);
-    if (ret) { LOG_ERR("ERRO standby: %d", ret); return; }
+    i2c_write(i2c_dev, buf, 2, MMA8451Q_I2C_ADDR);
 
     buf[0] = MMA8451Q_CTRL_REG1;
     buf[1] = MMA8451Q_ODR;
-    ret = i2c_write(i2c_dev, buf, 2, MMA8451Q_I2C_ADDR);
-    if (ret) { LOG_ERR("ERRO config ODR: %d", ret); return; }
+    i2c_write(i2c_dev, buf, 2, MMA8451Q_I2C_ADDR);
 
     buf[0] = MMA8451Q_CTRL_REG1;
     buf[1] = MMA8451Q_ODR | MMA8451Q_ACTIVE_BIT;
-    ret = i2c_write(i2c_dev, buf, 2, MMA8451Q_I2C_ADDR);
-    if (ret) { LOG_ERR("ERRO ativar: %d", ret); return; }
+    i2c_write(i2c_dev, buf, 2, MMA8451Q_I2C_ADDR);
 
     LOG_INF("MMA8451Q configurado para 100 Hz via I2C.");
 }
@@ -93,7 +97,7 @@ void thread_aquisicao(void *arg1, void *arg2, void *arg3) {
     }
 
     mma8451q_configurar_odr();
-    k_msleep(200); // Estabilizar
+    k_msleep(200); 
 
     while (1) {
         int ret = sensor_sample_fetch(accel);
@@ -101,30 +105,40 @@ void thread_aquisicao(void *arg1, void *arg2, void *arg3) {
             dados.timestamp = k_cycle_get_32(); 
 
             sensor_channel_get(accel, SENSOR_CHAN_ACCEL_X, &val_x);
-            // Convertendo para inteiro para o filtro FIR
+            sensor_channel_get(accel, SENSOR_CHAN_ACCEL_Y, &val_y);
+            sensor_channel_get(accel, SENSOR_CHAN_ACCEL_Z, &val_z);
+
             dados.raw_x = (val_x.val1 * 1000) + (val_x.val2 / 1000);
+            dados.raw_y = (val_y.val1 * 1000) + (val_y.val2 / 1000);
+            dados.raw_z = (val_z.val1 * 1000) + (val_z.val2 / 1000);
 
             if (usar_filtro) {
-                dados.filtered_x = aplicar_filtro_fir_x(dados.raw_x);
+                // Aplica o filtro nos 3 buffers separados
+                dados.filtered_x = aplicar_filtro_fir(dados.raw_x, fir_buffer_x);
+                dados.filtered_y = aplicar_filtro_fir(dados.raw_y, fir_buffer_y);
+                dados.filtered_z = aplicar_filtro_fir(dados.raw_z, fir_buffer_z);
             } else {
                 dados.filtered_x = dados.raw_x;
+                dados.filtered_y = dados.raw_y;
+                dados.filtered_z = dados.raw_z;
             }
 
-            // Envia para a fila
             k_msgq_put(&acel_msgq, &dados, K_NO_WAIT);
         }
-        k_msleep(5); // Mantendo o seu delay de aquisição de dados
+        k_msleep(5); 
     }
 }
 
 // --- THREAD 2: COMUNICAÇÃO ---
 void thread_comunicacao(void *arg1, void *arg2, void *arg3) {
-    struct acel_data_item rx_dados;
+    struct acel_data_item rx;
 
     while (1) {
-        if (k_msgq_get(&acel_msgq, &rx_dados, K_FOREVER) == 0) {
-            // Formato que o Python entende (ACEL,timestamp,raw_x,filtered_x,0,0)
-            LOG_INF("ACEL,%u,%d,%d,0,0", rx_dados.timestamp, rx_dados.raw_x, rx_dados.filtered_x);
+        if (k_msgq_get(&acel_msgq, &rx, K_FOREVER) == 0) {
+            // Imprime exatamente no formato esperado pelo Regex do Python
+            LOG_INF("XR:%d YR:%d ZR:%d XF:%d YF:%d ZF:%d", 
+                    rx.raw_x, rx.raw_y, rx.raw_z, 
+                    rx.filtered_x, rx.filtered_y, rx.filtered_z);
         }
     }
 }
@@ -132,7 +146,6 @@ void thread_comunicacao(void *arg1, void *arg2, void *arg3) {
 K_THREAD_DEFINE(acq_tid, STACK_SIZE, thread_aquisicao, NULL, NULL, NULL, PRIORITY_AQ, 0, 0);
 K_THREAD_DEFINE(com_tid, STACK_SIZE, thread_comunicacao, NULL, NULL, NULL, PRIORITY_COM, 0, 0);
 
-// === MAIN CORRIGIDO (Retornando int) ===
 int main(void) {
     gpio_pin_configure(button.port, button.pin, GPIO_INPUT | GPIO_PULL_UP);
     gpio_pin_interrupt_configure(button.port, button.pin, GPIO_INT_EDGE_FALLING);
@@ -140,6 +153,5 @@ int main(void) {
     gpio_add_callback(button.port, &button_cb_data);
 
     LOG_INF("Sistema Pronto.");
-    
-    return 0; // Exigência do compilador C moderno
+    return 0; 
 }
