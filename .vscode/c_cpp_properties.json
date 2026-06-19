@@ -1,0 +1,93 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/include",
+                "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/src",
+                "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/.pio/build/frdm_kl25z/zephyr/include/generated/zephyr",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/include",
+                "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/.pio/build/frdm_kl25z/zephyr/include/generated",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/soc/nxp/kinetis",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/soc/nxp/kinetis/kl2x",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/soc/nxp/kinetis/common",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/cmsis/CMSIS/Core/Include",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/cmsis_6/CMSIS/Core/Include",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/modules/cmsis_6",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk/devices/MKL25Z4",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk/devices/MKL25Z4/drivers",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/common",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/adc16",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/i2c",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/lpsci",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/port",
+                "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/lib/pwm",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/include",
+                    "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/src",
+                    "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/.pio/build/frdm_kl25z/zephyr/include/generated/zephyr",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/include",
+                    "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/.pio/build/frdm_kl25z/zephyr/include/generated",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/soc/nxp/kinetis",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/soc/nxp/kinetis/kl2x",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/soc/nxp/kinetis/common",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/cmsis/CMSIS/Core/Include",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/cmsis_6/CMSIS/Core/Include",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/modules/cmsis_6",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk/devices/MKL25Z4",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk/devices/MKL25Z4/drivers",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/common",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/adc16",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/i2c",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/lpsci",
+                    "C:/Users/eduar/.platformio/packages/framework-zephyr/_pio/modules/hal/nxp/mcux/mcux-sdk-ng/drivers/port",
+                    "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/lib/pwm",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60119",
+                "CPU_MKL25Z128VLK4",
+                "KERNEL",
+                "K_HEAP_MEM_POOL_SIZE=0",
+                "NDEBUG",
+                "__LINUX_ERRNO_EXTENSIONS__",
+                "__PROGRAM_START",
+                "__ZEPHYR__=1",
+                ""
+            ],
+            "cStandard": "c99",
+            "forcedInclude": [
+                "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/.pio/build/frdm_kl25z/zephyr/include/generated/zephyr/autoconf.h",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/include/zephyr/toolchain/zephyr_stdint.h",
+                ""
+            ],
+            "compilerPath": "C:/Users/eduar/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-gcc.exe",
+            "compilerArgs": [
+                "-mcpu=cortex-m0plus",
+                "-mthumb",
+                "-mabi=aapcs",
+                "-mfp16-format=ieee",
+                "-isystem",
+                "C:/Users/eduar/.platformio/packages/framework-zephyr/lib/libc/common/include",
+                "-isystem",
+                "C:/Users/eduar/Downloads/Atividade-6-main/Atividade-6-main/.pio/build/frdm_kl25z/modules/picolibc/picolibc/include",
+                "-isystem",
+                "c:/users/eduar/.platformio/packages/toolchain-gccarmnoneeabi/bin/../lib/gcc/arm-none-eabi/8.2.1/include",
+                "-isystem",
+                "c:/users/eduar/.platformio/packages/toolchain-gccarmnoneeabi/bin/../lib/gcc/arm-none-eabi/8.2.1/include-fixed",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
